@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ACTIVITIES, fmtDuration, weeklyStats, type Sport } from "@/lib/mock-data";
 import { AppShell } from "@/components/AppShell";
+import { AnalyticsCard } from "@/components/AnalyticsCard";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
 import { SportBadge } from "@/components/SportBadge";
 
@@ -43,10 +44,10 @@ function Training() {
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-8">
-        <Card label="Activities" value={totals.count} />
-        <Card label="Distance" value={`${totals.km.toFixed(1)} km`} />
-        <Card label="Time" value={fmtDuration(totals.time)} />
-        <Card label="Elevation" value={`${totals.elev.toLocaleString()} m`} />
+        <AnalyticsCard label="Activities" value={totals.count} />
+        <AnalyticsCard label="Distance" value={totals.km.toFixed(1)} unit="km" />
+        <AnalyticsCard label="Time" value={fmtDuration(totals.time)} />
+        <AnalyticsCard label="Elevation" value={totals.elev.toLocaleString()} unit="m" />
       </div>
 
       <div className="grid grid-cols-3 gap-6 mb-10">
@@ -131,14 +132,5 @@ function Training() {
         </table>
       </div>
     </AppShell>
-  );
-}
-
-function Card({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="bg-surface border border-border rounded-xl p-4">
-      <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-      <div className="stat-num text-2xl mt-1">{value}</div>
-    </div>
   );
 }
