@@ -54,3 +54,27 @@ the production app:
 
 - `Athlete`, `Activity`, `Segment`, `Club`, `Challenge` — see `src/lib/mock-data.ts`
 - `AppData` is what a real backend would return from `/api/bootstrap`
+
+## Install the Magic Patterns plugin (Claude Code)
+
+This repo doubles as a Claude Code plugin marketplace. The `magic-patterns`
+plugin (under `plugins/claude-magic-patterns/`) ships a skill that drives the
+Magic Patterns MCP to build prototypes that match this codebase's tokens and
+Shadcn primitives.
+
+From inside Claude Code:
+
+```
+/plugin marketplace add colinmatthews/stride-components
+/plugin install magic-patterns@stride-components
+```
+
+Or, if you've already cloned the repo locally:
+
+```
+/plugin marketplace add ./
+/plugin install magic-patterns@stride-components
+```
+
+On first use you'll be prompted to authenticate with your Magic Patterns
+account. See `plugins/claude-magic-patterns/README.md` for usage examples.

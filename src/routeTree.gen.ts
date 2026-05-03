@@ -17,7 +17,9 @@ import { Route as ClubsRouteImport } from './routes/clubs'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PrototypesIndexRouteImport } from './routes/prototypes.index'
 import { Route as SegmentIdRouteImport } from './routes/segment.$id'
+import { Route as PrototypesSlugRouteImport } from './routes/prototypes.$slug'
 import { Route as ClubIdRouteImport } from './routes/club.$id'
 import { Route as AthleteIdRouteImport } from './routes/athlete.$id'
 import { Route as ActivityIdRouteImport } from './routes/activity.$id'
@@ -62,9 +64,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrototypesIndexRoute = PrototypesIndexRouteImport.update({
+  id: '/prototypes/',
+  path: '/prototypes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SegmentIdRoute = SegmentIdRouteImport.update({
   id: '/segment/$id',
   path: '/segment/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypesSlugRoute = PrototypesSlugRouteImport.update({
+  id: '/prototypes/$slug',
+  path: '/prototypes/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClubIdRoute = ClubIdRouteImport.update({
@@ -95,7 +107,9 @@ export interface FileRoutesByFullPath {
   '/activity/$id': typeof ActivityIdRoute
   '/athlete/$id': typeof AthleteIdRoute
   '/club/$id': typeof ClubIdRoute
+  '/prototypes/$slug': typeof PrototypesSlugRoute
   '/segment/$id': typeof SegmentIdRoute
+  '/prototypes/': typeof PrototypesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,7 +123,9 @@ export interface FileRoutesByTo {
   '/activity/$id': typeof ActivityIdRoute
   '/athlete/$id': typeof AthleteIdRoute
   '/club/$id': typeof ClubIdRoute
+  '/prototypes/$slug': typeof PrototypesSlugRoute
   '/segment/$id': typeof SegmentIdRoute
+  '/prototypes': typeof PrototypesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,7 +140,9 @@ export interface FileRoutesById {
   '/activity/$id': typeof ActivityIdRoute
   '/athlete/$id': typeof AthleteIdRoute
   '/club/$id': typeof ClubIdRoute
+  '/prototypes/$slug': typeof PrototypesSlugRoute
   '/segment/$id': typeof SegmentIdRoute
+  '/prototypes/': typeof PrototypesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,7 +158,9 @@ export interface FileRouteTypes {
     | '/activity/$id'
     | '/athlete/$id'
     | '/club/$id'
+    | '/prototypes/$slug'
     | '/segment/$id'
+    | '/prototypes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -154,7 +174,9 @@ export interface FileRouteTypes {
     | '/activity/$id'
     | '/athlete/$id'
     | '/club/$id'
+    | '/prototypes/$slug'
     | '/segment/$id'
+    | '/prototypes'
   id:
     | '__root__'
     | '/'
@@ -168,7 +190,9 @@ export interface FileRouteTypes {
     | '/activity/$id'
     | '/athlete/$id'
     | '/club/$id'
+    | '/prototypes/$slug'
     | '/segment/$id'
+    | '/prototypes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,7 +207,9 @@ export interface RootRouteChildren {
   ActivityIdRoute: typeof ActivityIdRoute
   AthleteIdRoute: typeof AthleteIdRoute
   ClubIdRoute: typeof ClubIdRoute
+  PrototypesSlugRoute: typeof PrototypesSlugRoute
   SegmentIdRoute: typeof SegmentIdRoute
+  PrototypesIndexRoute: typeof PrototypesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -244,11 +270,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prototypes/': {
+      id: '/prototypes/'
+      path: '/prototypes'
+      fullPath: '/prototypes/'
+      preLoaderRoute: typeof PrototypesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/segment/$id': {
       id: '/segment/$id'
       path: '/segment/$id'
       fullPath: '/segment/$id'
       preLoaderRoute: typeof SegmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototypes/$slug': {
+      id: '/prototypes/$slug'
+      path: '/prototypes/$slug'
+      fullPath: '/prototypes/$slug'
+      preLoaderRoute: typeof PrototypesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/club/$id': {
@@ -287,7 +327,9 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityIdRoute: ActivityIdRoute,
   AthleteIdRoute: AthleteIdRoute,
   ClubIdRoute: ClubIdRoute,
+  PrototypesSlugRoute: PrototypesSlugRoute,
   SegmentIdRoute: SegmentIdRoute,
+  PrototypesIndexRoute: PrototypesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

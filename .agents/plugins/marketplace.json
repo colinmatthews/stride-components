@@ -1,0 +1,20 @@
+{
+  "name": "stride-components",
+  "interface": {
+    "displayName": "Stride Components Plugins"
+  },
+  "plugins": [
+    {
+      "name": "magic-patterns",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-magic-patterns"
+      },
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    }
+  ]
+}

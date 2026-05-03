@@ -1,0 +1,9 @@
+{
+  "name": "magic-patterns",
+  "version": "0.1.0",
+  "description": "Build high-fidelity Magic Patterns prototypes that match your real codebase — same tokens, same Shadcn primitives, same data shapes.",
+  "author": {
+    "name": "Colin"
+  },
+  "keywords": ["magic-patterns", "prototyping", "shadcn", "design-system"]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "magic-patterns",
+  "version": "0.1.0",
+  "description": "Build high-fidelity Magic Patterns prototypes that match a real codebase using its tokens, Shadcn primitives, and data shapes.",
+  "author": {
+    "name": "Colin"
+  },
+  "homepage": "https://www.magicpatterns.com/",
+  "repository": "https://github.com/colin/magic-patterns-plugin",
+  "license": "MIT",
+  "keywords": [
+    "magic-patterns",
+    "prototyping",
+    "shadcn",
+    "design-system"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Magic Patterns",
+    "shortDescription": "Prototype repo-faithful UI in Magic Patterns",
+    "longDescription": "Build and iterate Magic Patterns prototypes that match the user's real React, Tailwind, and Shadcn codebase by porting tokens, primitives, and realistic data into the generated design.",
+    "developerName": "Colin",
+    "category": "Design",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://www.magicpatterns.com/",
+    "privacyPolicyURL": "https://www.magicpatterns.com/privacy",
+    "termsOfServiceURL": "https://www.magicpatterns.com/terms",
+    "defaultPrompt": [
+      "Prototype a feature that matches this app",
+      "Bump this Magic Patterns design to v2",
+      "Create a testable UI prototype from my repo"
+    ],
+    "brandColor": "#7C3AED",
+    "screenshots": []
+  }
+}

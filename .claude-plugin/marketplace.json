@@ -1,0 +1,15 @@
+{
+  "name": "stride-components",
+  "description": "Stride Components marketplace — distributes the Magic Patterns Claude Code plugin alongside the Stride frontend prototype starter.",
+  "owner": {
+    "name": "Colin Matthews"
+  },
+  "plugins": [
+    {
+      "name": "magic-patterns",
+      "source": "./plugins/claude-magic-patterns",
+      "description": "Build high-fidelity Magic Patterns prototypes that match your real codebase — same tokens, same Shadcn primitives, same data shapes.",
+      "version": "0.1.0"
+    }
+  ]
+}
