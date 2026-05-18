@@ -1,0 +1,319 @@
+task: "Prototype a feature inside stride-components"
+calibration_target: "no-context stranger (fixed by skill)"
+created: 2026-05-15
+notes: |
+  Spec gates whether a prototype is "done" — i.e. visually plausible as Stride,
+  communicates its idea, fits the existing information architecture, and is
+  cheap to hand off to engineering because it's layered on real code instead
+  of inventing parallel scaffolding.
+
+  Core principle: when a prototype is meant to extend an existing route,
+  the prototype starts FROM that route as the initial view and iterates
+  on top — never builds a parallel layout that occupies the same
+  conceptual space. The registry description names the starting view so
+  reviewers (and this spec's binary checks) can verify the layering.
+
+  Auth/onboarding/marketing/mobile-only prototypes (e.g. login, sync-status)
+  follow different conventions and are explicitly exempted by the checks that
+  reference AppShell, app-level components, or a starting view.
+
+checks:
+  - id: registered_in_registry
+    type: structural
+    statement: |
+      src/prototypes/registry.ts contains an entry whose `slug` matches
+      the prototype's folder name, with a non-empty title, a `description`
+      of at least 30 characters, and a `Component` that imports the
+      prototype's default export. The description MUST:
+        (a) Name the idea/hypothesis the prototype is testing — not just
+            label the feature.
+        (b) When the prototype extends an existing route/page/view,
+            name that starting view explicitly (e.g. "Extends
+            /athlete/me with a plan & billing card.", "Layers a recap
+            module onto the feed at /."). When the prototype is a
+            standalone screen with no existing equivalent (auth,
+            onboarding, mobile-only flows), (b) doesn't apply.
+    rationale: |
+      Since the rendered page carries NO meta-chrome (idea label, back
+      link, "prototype" pill all forbidden), the registry description
+      is the only place reviewers can learn what's being tested and
+      what view the prototype is supposed to layer on top of. Both
+      pieces of information have to live here.
+
+  - id: lives_in_prototypes_folder_only
+    type: reference
+    statement: |
+      Compared against main, the only file touched outside
+      src/prototypes/<slug>/ is src/prototypes/registry.ts. No edits to
+      src/components/**, src/lib/**, or src/routes/**.
+    rationale: |
+      Prototypes are sandboxes (src/prototypes/README.md). Touching shared
+      code means we're rewriting product surface, not layering on top of it.
+      If a shared component needs tweaking, it should be copied into the
+      prototype folder instead.
+
+  - id: uses_canonical_data_types
+    type: structural
+    statement: |
+      The prototype imports its domain types (Activity, Athlete, Segment,
+      Club, Challenge, Sport) from "@/lib/mock-data" and does NOT re-declare
+      any interface or type alias with those names inside src/prototypes/<slug>/.
+    rationale: |
+      Reusing the canonical types is the cheapest way to make engineering
+      handoff accurate — a backend ticket can reference the same shape the
+      prototype is reading from.
+
+  - id: reads_seeded_data_not_hardcoded
+    type: structural
+    statement: |
+      For any rendered list of activities, athletes, segments, clubs, or
+      challenges, the source is ACTIVITIES / ATHLETES / SEGMENTS / CLUBS /
+      CHALLENGES / ME imported from "@/lib/mock-data". The prototype does
+      not contain an inline array of fabricated objects of those types with
+      literal ids, names, distances, etc.
+    rationale: |
+      Inline fake records drift from the real data shape and force engineers
+      to map fictional fields onto real ones during handoff. The seeded
+      fixtures already cover the same surface area.
+
+  - id: shadcn_primitives_via_components_ui
+    type: structural
+    statement: |
+      Any shadcn primitive used in the prototype (Button, Card, Input, Label,
+      Sheet, Dialog, Drawer, Tabs, Select, Separator, Checkbox, Switch,
+      Tooltip, Badge, Progress, Avatar, etc.) is imported from
+      "@/components/ui/<name>". The file does NOT import directly from a
+      @radix-ui/* package or redefine these primitives inline.
+    rationale: |
+      Using the project's wrapped primitives keeps tokens, focus styles, and
+      class names consistent with the real product. Importing radix directly
+      means the prototype is silently bypassing the design system.
+
+  - id: reuses_at_least_one_app_level_component
+    type: structural
+    statement: |
+      The prototype imports at least one component from "@/components/*"
+      (NOT just "@/components/ui/*") — e.g. AppShell, ActivityCard,
+      SportBadge, RouteMap, Stat. Exempt: prototypes whose real-product
+      equivalent is auth, onboarding, marketing, or a native/mobile screen.
+    rationale: |
+      App-level components encode the product's visual identity beyond raw
+      primitives. Reusing one is the most concrete signal that the prototype
+      is layering on the existing app, not rebuilding it.
+
+  - id: renders_inside_or_extends_app_shell
+    type: binary_llm
+    statement: |
+      If the prototype represents a screen that, in the real product, would
+      live behind the authenticated sidebar (anything reachable from
+      AppShell's NAV: feed, training log, segments, challenges, clubs,
+      athlete pages, activity detail, record), the rendered output is
+      wrapped in <AppShell> from "@/components/AppShell". A stranger viewing
+      the prototype in a browser should see the same sidebar + top bar they
+      see on /training or /segments. Exempt: auth, onboarding, marketing,
+      mobile-only prototypes.
+    rationale: |
+      Matching the IA is what makes a prototype feel like it belongs in
+      Stride. A screen invented in a vacuum is harder to evaluate and harder
+      to slot into production.
+
+  - id: no_prototype_meta_chrome
+    type: binary_llm
+    statement: |
+      The rendered prototype contains NO meta-chrome that announces it
+      as a prototype. Specifically, none of the following appear on the
+      page:
+        - a back link / breadcrumb to /prototypes,
+        - a kicker, pill, badge, or status chip that uses the word
+          "Prototype" or names the prototype's slug,
+        - a banner, footer note, or watermark saying "Not a real flow"
+          or similar.
+      The page should look indistinguishable from a real product screen.
+      Reviewers return to the index via the browser back button or the
+      URL bar; the idea label lives in the registry entry, not on the
+      page.
+
+      EXPLICITLY ALLOWED as review chrome (not meta-chrome): the
+      variant switcher required by provides_three_variants_with_switcher.
+      The switcher must NOT use the word "Prototype" or the slug — just
+      variant labels (e.g. "Aside card", "Inline section", "Header
+      pill") — otherwise it counts as meta-chrome and fails.
+    rationale: |
+      User explicitly asked to strip the back link and the "Prototype ·
+      X" pill. The goal is to maximize "visually similar to the product"
+      — every pixel of prototype meta-chrome works against that goal.
+      The variant switcher is a review affordance for comparing design
+      directions, not a status announcement, so it lives in a separate
+      bucket.
+
+  - id: demonstrates_one_state_change
+    type: binary_llm
+    statement: |
+      The prototype contains at least one interactive control (button,
+      switch, tab, toggle, drawer trigger, dialog trigger, segmented
+      control) that, when clicked, produces a visible change on the page
+      that exercises the prototype's idea. Generic chrome controls that
+      already work in the rest of the app (the sidebar nav, the search
+      input, the logout button) do NOT count.
+    rationale: |
+      A static screenshot can be a Figma file. A prototype earns the name by
+      letting a reviewer feel one moment of the interaction.
+
+  - id: lean_page_header
+    type: binary_llm
+    statement: |
+      APPLIES ONLY when the prototype is a standalone screen — i.e.
+      when layers_on_referenced_starting_view does NOT apply (the
+      registry description names no existing route as the starting
+      view). When the prototype layers on an existing route, the
+      header is whatever the starting view already has, and check 13
+      governs instead. This check is EXEMPT in that case.
+
+      When it applies: EXACTLY ONE row of header above the first
+      substantive content block. That row contains the h1 title (and
+      at most a single inline icon next to it). Then content begins.
+
+      NOT allowed (each of these fails the check):
+        - a stacked kicker / eyebrow row ABOVE the title,
+        - a stacked description, subtitle, or paragraph BELOW the title,
+        - a stacked metadata / date-range / status row BELOW the title,
+        - a stacked tab / filter / control strip BELOW the title.
+
+      All of those should be either dropped or placed inside the first
+      content block.
+
+      A stranger can verify by counting stacked rows of text between the
+      end of the sidebar header and the start of the first card/list/
+      grid of real content. If they see more than one stacked row of
+      text, it fails — regardless of how short each row is.
+    rationale: |
+      User asked for "one header, nothing above or below" — but that
+      rule only makes sense for standalone screens the prototype is
+      inventing. When the prototype extends an existing route, it
+      inherits that route's header (per check 13), even if that header
+      is heavier than this check would otherwise allow. The two
+      previously contradicted each other; this exemption resolves it
+      in favor of "match the real product" over "make prototype
+      chrome lean."
+
+  - id: grid_columns_align_at_top
+    type: binary_llm
+    statement: |
+      In any multi-column grid (any element using grid-cols-2, grid-cols-3,
+      or any lg:grid-cols-* variant where each column contains its own
+      section or card), the top edge of every column's first visible
+      element sits at the same Y coordinate. Concretely: either EVERY
+      column has a section heading / eyebrow rendered above its card, OR
+      NO column does (headings sit inside the cards instead). Mixed
+      treatment — one column with a heading above its card, the adjacent
+      column without — fails this check.
+    rationale: |
+      Mismatched column starts make a side-by-side layout feel sloppy and
+      undermine the "visually similar to product" goal even when the
+      individual components are correct.
+
+  - id: interactive_chrome_matches_target_surface
+    type: binary_llm
+    statement: |
+      If the prototype emulates an at-a-glance surface (feed, dashboard,
+      summary, recap, home screen, weekly digest — anything whose purpose
+      is to communicate state at first glance rather than support
+      drill-down), it does NOT introduce top-level tab/filter/segmented
+      chrome that splits the main content into views.
+      State changes on at-a-glance surfaces must happen at the item level
+      (click a card to open detail, expand a row, dismiss, hover to
+      reveal). Top-level filter/tab chrome is reserved for list/index
+      surfaces (training log, segments index, athletes list — surfaces
+      users navigate to specifically to drill into).
+      A stranger can verify by asking: "in the real product, does the
+      equivalent page have tab/filter chrome at the top?" If no, the
+      prototype mustn't either.
+    rationale: |
+      User clarified: the feed and its recap-style cousins exist for
+      at-a-glance progress and activities. Putting filter chrome at the
+      top of those surfaces contradicts the IA we're supposed to be
+      matching — it makes the prototype feel like a dashboard tool, not a
+      Stride page.
+
+  - id: provides_three_variants_with_switcher
+    type: binary_llm
+    statement: |
+      The prototype renders exactly THREE structurally distinct design
+      variants of the same idea, and exposes a floating switcher
+      pinned to the bottom of the viewport that lets a reviewer flip
+      between them. Clicking another variant swaps which design is
+      rendered without a page reload.
+
+      Variants must be MEANINGFULLY DIFFERENT — different placements,
+      affordances, or interaction models. NOT color or copy tweaks.
+      A stranger comparing any two variants should see them as
+      "different design approaches," not "the same design with minor
+      variations." If two variants differ only in styling, that
+      counts as one variant for this check.
+
+      The switcher:
+        - is fixed/sticky to the bottom of the viewport (position:
+          fixed, bottom: small offset, z-index above page content),
+        - shows all three variant labels (reviewer sees what else is
+          available without clicking),
+        - indicates the active variant visually (different background,
+          underline, border, etc.),
+        - persists across scroll (doesn't scroll out of view),
+        - uses variant labels only — must NOT use the word "Prototype"
+          or the prototype's slug (would fail no_prototype_meta_chrome).
+
+      EXEMPT: auth, onboarding, marketing, and mobile-only-frame
+      prototypes where a single answer is the point of the exploration.
+    rationale: |
+      A single design rarely captures the right answer. Generating
+      three structural alternatives and letting reviewers flip between
+      them in-place surfaces tradeoffs that a single version hides,
+      and makes "which direction do we pursue" a verifiable decision
+      rather than a vibe.
+
+  - id: layers_on_referenced_starting_view
+    type: binary_llm
+    statement: |
+      When the prototype is meant to extend an existing route in the
+      product, its initial rendered output VISUALLY MATCHES that
+      starting view, with new content added alongside or within it.
+
+      HOW TO TELL THIS CHECK APPLIES:
+        Read the prototype's entry in src/prototypes/registry.ts. If
+        the description names a specific existing route (e.g. "extends
+        /athlete/me", "adds to the feed at /", "lives on the activity
+        detail page"), this check APPLIES.
+        If the description names no existing route, OR the brief is a
+        standalone screen (auth, onboarding, marketing, mobile-only),
+        this check is EXEMPT.
+
+      WHEN IT APPLIES, A STRANGER CAN VERIFY BY:
+        1. Opening the named existing route and the prototype URL
+           side-by-side in two browser tabs.
+        2. Confirming every distinct section of the existing route is
+           present on the prototype, in approximately the same position
+           and visual style — header, side rails, lists, cards,
+           anything substantive.
+        3. Confirming the prototype's additions sit ALONGSIDE or WITHIN
+           the existing sections (new aside card, new inline section,
+           new dialog triggered from existing chrome) — they don't
+           replace, hide, or rearrange the existing sections to make
+           room.
+
+      Trimming the referenced view's sections, or building a
+      different-shaped layout that occupies the same conceptual space,
+      FAILS this check. The prototype is "the referenced page + deltas",
+      not "a new page that does the same job."
+
+      To meet this check, the prototype typically either: (a) imports
+      the same components the route uses and re-composes them in the
+      same structure, or (b) copies the route's source into the
+      prototype folder and edits the copy (allowed by the sandbox
+      rules in src/prototypes/README.md).
+    rationale: |
+      User flagged that when they reference an existing page as the
+      integration point, the prototype must start FROM that page and
+      iterate. A parallel-layout prototype answers the wrong question:
+      engineering still has to figure out how to merge it back into the
+      existing route at handoff time, and the reviewer can't tell at a
+      glance which sections of the prototype are new vs. existing.
